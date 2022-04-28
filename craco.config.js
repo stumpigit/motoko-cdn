@@ -80,7 +80,7 @@ module.exports = {
       overrideWebpackConfig: ({ webpackConfig, pluginOptions }) => {
         return {
           ...webpackConfig,
-          mode: isDevelopment ? "development" : "production",
+          mode: "development",
           entry: {
             index: path.join(__dirname, asset_entry).replace(/\.html$/, ".js"),
           },

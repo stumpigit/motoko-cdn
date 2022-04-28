@@ -112,12 +112,15 @@ shared ({caller = owner}) actor class Container() = this {
     Debug.print("new canister principal is " # debug_show(Principal.toText(Principal.fromActor(b))) );
     Debug.print("initial size is " # debug_show(s));
     let _ = canisterMap.put(Principal.fromActor(b), threshold);
-    var v : CanisterState<Bucket, Nat> = {
+Debug.print("suti1");    
+var v : CanisterState<Bucket, Nat> = {
          bucket = b;
          var size = s;
     };
-    canisters[canisters.size() + 1 ] := ?v;
-  
+Debug.print("Suti2");
+
+    canisters[1] := ?v;
+  Debug.print("Suti3");
     b;
   };
 

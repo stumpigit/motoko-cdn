@@ -7,7 +7,7 @@
     "imageserver": {
       "main": "src/imageserver/main.mo",
       "type": "motoko"
-    }
+    },
     "frontend" : {
       "dependencies": ["backend"],
       "frontend": {

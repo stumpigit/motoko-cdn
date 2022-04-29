@@ -28,12 +28,6 @@ module {
     #jpg;
     #png;
     #gif;
-    #svg;
-    #mp3;
-    #wav;
-    #aac;
-    #mp4;
-    #avi;
   };
 
   public type FileInfo = {
@@ -42,6 +36,9 @@ module {
     name: Text;
     size: Nat;
     extension: FileExtension;
+    x: Int;
+    y: Int;
+    z: Int;
   }; 
 
   public type FileData = {

@@ -36,9 +36,9 @@ module {
     name: Text;
     size: Nat;
     extension: FileExtension;
-    x: Int;
-    y: Int;
-    z: Int;
+    x: Nat;
+    y: Nat;
+    z: Nat;
   }; 
 
   public type FileData = {

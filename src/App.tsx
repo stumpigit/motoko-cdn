@@ -381,18 +381,18 @@ const FilesInfo : React.FC<any> = ({ rerender }) => {
             .map((data: any, i: any) => {
               console.log(data);
               const cid = Principal.fromUint8Array(data.cid.toUint8Array()).toText();
-              const x = Object.keys(data.x)[0];
-              const y = Object.keys(data.y)[0];
-              const z = Object.keys(data.z)[0];
+              const x = Number(data.x);
+              const y = Number(data.y);
+              const z = Number(data.z);
               const extension = Object.keys(data.extension)[0];
               return <tr key={i}>
                     <th >{data.fileId}</th>
                     <td>{Number(data.size) / 1000} Kb</td>
                     <td>{extension}</td>
                     <td>{cid}</td>
-                    <td>{data.z}</td>
-                    <td>{data.x}</td>
-                    <td>{data.y}</td>
+                    <td>{z}</td>
+                    <td>{x}</td>
+                    <td>{y}</td>
                     <td><Button onClick={(e) => loadChunks(e, data)}>Load</Button></td>
                 </tr>
             })}

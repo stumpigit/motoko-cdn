@@ -111,6 +111,9 @@ actor class Bucket () = this {
             extension = v.extension;
             createdAt = v.createdAt;
             uploadedAt = v.uploadedAt;
+            x = v.x;
+            y = v.y;
+            z = v.z;
           }
       }
   };

@@ -50,6 +50,9 @@ module {
     name: Text;
     size: Nat;
     extension: FileExtension;
+    x: Nat;
+    y: Nat;
+    z: Nat;
   };
 
   public type Map<X, Y> = TrieMap.TrieMap<X, Y>;

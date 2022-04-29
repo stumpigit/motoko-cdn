@@ -390,9 +390,9 @@ const FilesInfo : React.FC<any> = ({ rerender }) => {
                     <td>{Number(data.size) / 1000} Kb</td>
                     <td>{extension}</td>
                     <td>{cid}</td>
-                    <td>{z}</td>
-                    <td>{x}</td>
-                    <td>{y}</td>
+                    <td>{data.z}</td>
+                    <td>{data.x}</td>
+                    <td>{data.y}</td>
                     <td><Button onClick={(e) => loadChunks(e, data)}>Load</Button></td>
                 </tr>
             })}

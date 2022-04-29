@@ -391,10 +391,18 @@ public func http_request_update(req : HttpRequest) : async HttpResponse {
     if ((req.method, req.url) == ("GET", "/")) {
       let dateien = await getAllFiles();
       // If so, return the main page with with right headers
+
+	let blobly = await getFileChunk(dateien[0].fileId, 1, dateien[0].cid);
+	let bloblyBlob : Blob = switch (blobly) {
+	  case null { Blob.fromArray([]) };
+	  case (?Blob) Blob;	  
+	};
+	
+
       return {
         status_code = 200;
-        headers = [ ("content-type", "text/plain") ];
-        body = Text.encodeUtf8(dateien[0].fileId);
+        headers = [ ("content-type", "image/png") ];
+        body = bloblyBlob;
         upgrade = false;
 streaming_strategy = null;        
       }

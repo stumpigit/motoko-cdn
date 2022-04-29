@@ -364,7 +364,7 @@ public func http_request_update(req : HttpRequest) : async HttpResponse {
       let allFiles = await getAllFiles();
       // If so, return the main page with with right headers
 
-	    let b = await getFileChunk(allFiles[0].fileId, 1, dateien[0].cid);
+	    let b = await getFileChunk(allFiles[0].fileId, 1, allFiles[0].cid);
       let myBlob : Blob = switch (b) {
         case null { Blob.fromArray([]) };
         case (?Blob) Blob;	  

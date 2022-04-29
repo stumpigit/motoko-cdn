@@ -72,6 +72,9 @@ actor class Bucket () = this {
                                           chunkCount = fi.chunkCount;
                                           size = fi.size ;
                                           extension = fi.extension;
+                                          x = fi.x;
+                                          y = fi.y;
+                                          z = fi.z;
                                       }
                   );
                   ?fileId

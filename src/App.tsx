@@ -200,9 +200,9 @@ const CdnElement: React.FC<any> = ({ updateDeps, setErrros }) => {
         chunkCount: BigInt(Number(Math.ceil(file.size / MAX_CHUNK_SIZE))),
         // @ts-ignore
         extension: fileExtension,
-        x: 0,
-        y: 0,
-        z: 16,
+        x: BigInt(0),
+        y: BigInt(0),
+        z: BigInt(16),
       };
       const ba = await BackendActor.getBackendActor();
       setValue(10);

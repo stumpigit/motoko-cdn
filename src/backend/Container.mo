@@ -10,7 +10,8 @@ import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
-
+import Option "mo:base/Option";
+import Bool "mo:base/Bool";
 
 // Container actor holds all created canisters in a canisters array 
 // Use of IC management canister with specified Principal "aaaaa-aa" to update the newly 
@@ -283,6 +284,108 @@ Debug.print("Suti2");
 
   public shared({caller = caller}) func wallet_receive() : async () {
     ignore Cycles.accept(Cycles.available());
+  };
+  
+  
+  // Part for serving the image directly by http_request GET 
+  public type HttpRequest = {
+        body: Blob;
+        headers: [HeaderField];
+        method: Text;
+        url: Text;
+    };
+
+    public type StreamingCallbackToken =  {
+        content_encoding: Text;
+        index: Nat;
+        key: Text;
+        sha256: ?Blob;
+    };
+    public type StreamingCallbackHttpResponse = {
+        body: Blob;
+        token: ?StreamingCallbackToken;
+    };
+    public type ChunkId = Nat;
+    public type SetAssetContentArguments = {
+        chunk_ids: [ChunkId];
+        content_encoding: Text;
+        key: Key;
+        sha256: ?Blob;
+    };
+    public type Path = Text;
+    public type Key = Text;
+
+    public type HttpResponse = {
+        body: Blob;
+        headers: [HeaderField];
+        status_code: Nat16;
+        streaming_strategy: ?StreamingStrategy;
+	      upgrade: Bool;
+    };
+
+    public type StreamingStrategy = {
+        #Callback: {
+            callback: query (StreamingCallbackToken) ->
+            async (StreamingCallbackHttpResponse);
+            token: StreamingCallbackToken;
+        };
+    };
+
+    public type HeaderField = (Text, Text);
+
+    private func removeQuery(str: Text): Text {
+        return Option.unwrap(Text.split(str, #char '?').next());
+    };
+
+    public query func http_request(req: HttpRequest): async (HttpResponse) {
+        let path = removeQuery(req.url);
+        if(path == "/") {
+            return {
+                body = Text.encodeUtf8("Should forward to http_request_update");
+                headers = [];
+                status_code = 200;
+                streaming_strategy = null;
+		            upgrade = true;
+            };
+        };
+
+        return {
+            body = Text.encodeUtf8("404 Not found :" # path);
+            headers = [];
+            status_code = 404;
+            streaming_strategy = null;
+		        upgrade = false;
+        };
+    };
+
+public func http_request_update(req : HttpRequest) : async HttpResponse {
+    // check if / is requested
+    if ((req.method, req.url) == ("GET", "/")) {
+      let allFiles = await getAllFiles();
+      // If so, return the main page with with right headers
+
+	    let b = await getFileChunk(dateien[0].fileId, 1, dateien[0].cid);
+      let myBlob : Blob = switch (b) {
+        case null { Blob.fromArray([]) };
+        case (?Blob) Blob;	  
+      };
+	    return {
+        status_code = 200;
+        headers = [ ("content-type", "image/png") ];
+        body = bloblyBlob;
+        upgrade = false;
+        streaming_strategy = null;        
+      }
+    } else {
+      // Else return an error code.      
+      return {
+        status_code = 404;
+        headers = [ ("content-type", "text/plain") ];
+        body = "404 Not found.\n This canister only serves /.\n";
+        upgrade = false;
+        streaming_strategy = null;
+      }
+    }
   };
 
 };

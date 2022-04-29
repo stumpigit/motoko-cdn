@@ -381,9 +381,9 @@ const FilesInfo : React.FC<any> = ({ rerender }) => {
             .map((data: any, i: any) => {
               console.log(data);
               const cid = Principal.fromUint8Array(data.cid.toUint8Array()).toText();
-              const x = Principal.fromUint8Array(data.x.toUint8Array()).toText();
-              const y = Principal.fromUint8Array(data.y.toUint8Array()).toText();
-              const z = Principal.fromUint8Array(data.z.toUint8Array()).toText();
+              const x = Object.keys(data.x)[0];
+              const y = Object.keys(data.y)[0];
+              const z = Object.keys(data.z)[0];
               const extension = Object.keys(data.extension)[0];
               return <tr key={i}>
                     <th >{data.fileId}</th>

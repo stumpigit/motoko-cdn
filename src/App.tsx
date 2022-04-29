@@ -382,6 +382,9 @@ const FilesInfo : React.FC<any> = ({ rerender }) => {
               console.log(data);
               const cid = Principal.fromUint8Array(data.cid.toUint8Array()).toText();
               const extension = Object.keys(data.extension)[0];
+              const x = Principal.fromUint8Array(data.x.toUint8Array()).toText();
+              const y = Principal.fromUint8Array(data.y.toUint8Array()).toText();
+              const z = Principal.fromUint8Array(data.z.toUint8Array()).toText();
               return <tr key={i}>
                     <th >{data.fileId}</th>
                     <td>{Number(data.size) / 1000} Kb</td>

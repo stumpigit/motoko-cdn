@@ -362,7 +362,6 @@ Debug.print("Suti2");
 
     public query func http_request(req: HttpRequest): async (HttpResponse) {
         let path = removeQuery(req.url);
-        if(path == "/") {
             return {
                 body = Text.encodeUtf8("Should forward to http_request_update");
                 headers = [];
@@ -370,15 +369,7 @@ Debug.print("Suti2");
                 streaming_strategy = null;
 		            upgrade = true;
             };
-        };
 
-        return {
-            body = Text.encodeUtf8("404 Not found :" # path);
-            headers = [];
-            status_code = 404;
-            streaming_strategy = null;
-		        upgrade = false;
-        };
     };
 
 public func http_request_update(req : HttpRequest) : async HttpResponse {

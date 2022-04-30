@@ -349,6 +349,17 @@ Debug.print("Suti2");
         return Option.unwrap(Text.split(str, #char '?').next());
     };
 
+    private func getWMTSFile(wmts: WMTSTile): async ?FileData {
+        let allFiles = await getAllFiles();
+        for (i in Iter.range(0, allFiles.size() - 1)) {
+            let file : FileData = allFiles[i];
+            Debug.print(Nat.toText(file.z));
+            Debug.print(wmts.tileMatrix);
+            if ((Nat.toText(file.z) == wmts.tileMatrix)) {return ?file;}
+        };
+        return null;
+    };
+
     public query func http_request(req: HttpRequest): async (HttpResponse) {
         let path = removeQuery(req.url);
         if(path == "/") {
@@ -397,21 +408,19 @@ public func http_request_update(req : HttpRequest) : async HttpResponse {
         ?(WMTSTile)
     };
 
-    Debug.print("Found wmts_call");
-    Debug.print(wmts_call.version);
-
-    if (wmts_call) {
-        let allFiles = await getAllFiles();
-        let toServeFile = label exit : ?(FileData) {
-            for (i in Iter.range(0, allFiles.size() - 1)) {
-                let file : FileData = allFiles[i];
-                Debug.print(file.z);
-                Debug.print(wmts_call.tileMatrix);
-                if ((file.z == wmts_call.tileMatrix)) {break file;}
-            };
+    let wmts_callNN : WMTSTile = switch (wmts_call) {
+            case (?WMTSTile) WMTSTile;	  
         };
 
-        let b = await getFileChunk(allFiles[0].fileId, 1, allFiles[0].cid);
+    Debug.print("Found wmts_call");
+    Debug.print(wmts_callNN.version);
+
+    if (wmts_call!=null) {
+        let toServeFile = await getWMTSFile(wmts_callNN);
+        let toServeFileNN : FileData = switch (toServeFile) {
+            case (?FileData) FileData;	  
+        };
+        let b = await getFileChunk(toServeFileNN.fileId, 1, toServeFileNN.cid);
         let myBlob : Blob = switch (b) {
             case null { Blob.fromArray([]) };
             case (?Blob) Blob;	  

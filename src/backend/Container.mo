@@ -380,7 +380,7 @@ public func http_request_update(req : HttpRequest) : async HttpResponse {
         let splitted = Text.split(req.url, #char '/');
       Debug.print("2");
         let array = Iter.toArray<Text>(splitted);
-      Debug.print("3");
+      Debug.print(Nat.toText(array.size()));
         if (array.size() != 8) { break exit(null) };
       Debug.print("4");
 

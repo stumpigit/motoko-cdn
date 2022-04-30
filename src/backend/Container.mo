@@ -333,6 +333,18 @@ Debug.print("Suti2");
 
     public type HeaderField = (Text, Text);
 
+    public type WMTSTile = {
+        version: Text;
+        layer: Text;
+        style: Text;
+        format: Text;
+        srs: Text;
+        tileMatrixSet: Text;
+        tileMatrix: Text;
+        tileRow: Text;
+        tileCol: Text;
+    };
+
     private func removeQuery(str: Text): Text {
         return Option.unwrap(Text.split(str, #char '?').next());
     };
@@ -359,7 +371,60 @@ Debug.print("Suti2");
     };
 
 public func http_request_update(req : HttpRequest) : async HttpResponse {
-    // check if / is requested
+    // try to parse the req.url as a GET Tile Request
+    let wmts_call = label exit : ?(WMTSTile) {
+        let splitted = Text.split(req.url, #char '/');
+        let array = Iter.toArray<Text>(splitted);
+        if (array.size() != 8) { break exit(null) };
+
+        // get col and format from last
+        let lastSplittet = Text.split(array[7], #char '.');
+        let lastSplittetArray = Iter.toArray<Text>(lastSplittet);
+        if (lastSplittetArray.size() != 2) { break exit(null) };
+
+
+        let WMTSTile = {
+            version = array[0];
+            layer = array[1];
+            style = array[2];
+            format = lastSplittetArray[1];
+            tileMatrixSet = array[3];
+            srs = array[4];
+            tileMatrix = array[5];
+            tileRow = array[6];
+            tileCol = lastSplittetArray[2];
+        };
+        ?(WMTSTile)
+    };
+
+    Debug.print("Found wmts_call");
+    Debug.print(wmts_call.version);
+
+    if (wmts_call) {
+        let allFiles = await getAllFiles();
+        let toServeFile = label exit : ?(FileData) {
+            for (i in Iter.range(0, allFiles.size() - 1)) {
+                let file : FileData = allFiles[i];
+                Debug.print(file.z);
+                Debug.print(wmts_call.tileMatrix);
+                if ((file.z == wmts_call.tileMatrix)) {break file;}
+            };
+        };
+
+        let b = await getFileChunk(allFiles[0].fileId, 1, allFiles[0].cid);
+        let myBlob : Blob = switch (b) {
+            case null { Blob.fromArray([]) };
+            case (?Blob) Blob;	  
+        };
+	    return {
+            status_code = 200;
+            headers = [ ("content-type", "image/png") ];
+            body = myBlob;
+            upgrade = false;
+            streaming_strategy = null;        
+        };
+    };
+
     if ((req.method, req.url) == ("GET", "/")) {
       let allFiles = await getAllFiles();
       // If so, return the main page with with right headers

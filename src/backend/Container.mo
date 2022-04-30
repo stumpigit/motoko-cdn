@@ -381,27 +381,27 @@ public func http_request_update(req : HttpRequest) : async HttpResponse {
       Debug.print("2");
         let array = Iter.toArray<Text>(splitted);
       Debug.print(Nat.toText(array.size()));
-        if (array.size() != 8) { break exit(null) };
+        if (array.size() != 9) { break exit(null) };
       Debug.print("4");
 
         // get col and format from last
-        let lastSplittet = Text.split(array[7], #char '.');
+        let lastSplittet = Text.split(array[8], #char '.');
       Debug.print("5");
         let lastSplittetArray = Iter.toArray<Text>(lastSplittet);
-      Debug.print("6");
+      Debug.print(lastSplittetArray.size());
         if (lastSplittetArray.size() != 2) { break exit(null) };
       Debug.print("7");
 
 
         let WMTSTile = {
-            version = array[0];
-            layer = array[1];
-            style = array[2];
+            version = array[1];
+            layer = array[2];
+            style = array[3];
             format = lastSplittetArray[1];
-            tileMatrixSet = array[3];
-            srs = array[4];
-            tileMatrix = array[5];
-            tileRow = array[6];
+            tileMatrixSet = array[4];
+            srs = array[5];
+            tileMatrix = array[6];
+            tileRow = array[7];
             tileCol = lastSplittetArray[2];
         };
         ?(WMTSTile)

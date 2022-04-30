@@ -376,14 +376,21 @@ public func http_request_update(req : HttpRequest) : async HttpResponse {
     Debug.print("In Update Request");
     // try to parse the req.url as a GET Tile Request
     let wmts_call = label exit : ?(WMTSTile) {
+      Debug.print("1");
         let splitted = Text.split(req.url, #char '/');
+      Debug.print("2");
         let array = Iter.toArray<Text>(splitted);
+      Debug.print("3");
         if (array.size() != 8) { break exit(null) };
+      Debug.print("4");
 
         // get col and format from last
         let lastSplittet = Text.split(array[7], #char '.');
+      Debug.print("5");
         let lastSplittetArray = Iter.toArray<Text>(lastSplittet);
+      Debug.print("6");
         if (lastSplittetArray.size() != 2) { break exit(null) };
+      Debug.print("7");
 
 
         let WMTSTile = {

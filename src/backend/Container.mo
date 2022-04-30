@@ -373,6 +373,7 @@ Debug.print("Suti2");
     };
 
 public func http_request_update(req : HttpRequest) : async HttpResponse {
+    Debug.print("In Update Request");
     // try to parse the req.url as a GET Tile Request
     let wmts_call = label exit : ?(WMTSTile) {
         let splitted = Text.split(req.url, #char '/');

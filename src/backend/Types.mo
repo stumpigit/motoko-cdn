@@ -72,5 +72,60 @@ module {
   };
 
 
-  
+  public type HttpRequest = {
+        body: Blob;
+        headers: [HeaderField];
+        method: Text;
+        url: Text;
+    };
+
+    public type StreamingCallbackToken =  {
+        content_encoding: Text;
+        index: Nat;
+        key: Text;
+        sha256: ?Blob;
+    };
+    public type StreamingCallbackHttpResponse = {
+        body: Blob;
+        token: ?StreamingCallbackToken;
+    };
+    public type ChunkId = Nat;
+    public type SetAssetContentArguments = {
+        chunk_ids: [ChunkId];
+        content_encoding: Text;
+        key: Key;
+        sha256: ?Blob;
+    };
+    public type Path = Text;
+    public type Key = Text;
+
+    public type HttpResponse = {
+        body: Blob;
+        headers: [HeaderField];
+        status_code: Nat16;
+        streaming_strategy: ?StreamingStrategy;
+	      upgrade: Bool;
+    };
+
+    public type StreamingStrategy = {
+        #Callback: {
+            callback: query (StreamingCallbackToken) ->
+            async (StreamingCallbackHttpResponse);
+            token: StreamingCallbackToken;
+        };
+    };
+
+    public type HeaderField = (Text, Text);
+
+    public type WMTSTile = {
+        version: Text;
+        layer: Text;
+        style: Text;
+        format: Text;
+        srs: Text;
+        tileMatrixSet: Text;
+        tileMatrix: Text;
+        tileRow: Text;
+        tileCol: Text;
+    };
 }

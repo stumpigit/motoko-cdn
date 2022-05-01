@@ -288,109 +288,49 @@ Debug.print("Suti2");
   
   
   // Part for serving the image directly by http_request GET 
-  public type HttpRequest = {
-        body: Blob;
-        headers: [HeaderField];
-        method: Text;
-        url: Text;
-    };
 
-    public type StreamingCallbackToken =  {
-        content_encoding: Text;
-        index: Nat;
-        key: Text;
-        sha256: ?Blob;
-    };
-    public type StreamingCallbackHttpResponse = {
-        body: Blob;
-        token: ?StreamingCallbackToken;
-    };
-    public type ChunkId = Nat;
-    public type SetAssetContentArguments = {
-        chunk_ids: [ChunkId];
-        content_encoding: Text;
-        key: Key;
-        sha256: ?Blob;
-    };
-    public type Path = Text;
-    public type Key = Text;
+  private func removeQuery(str: Text): Text {
+      return Option.unwrap(Text.split(str, #char '?').next());
+  };
 
-    public type HttpResponse = {
-        body: Blob;
-        headers: [HeaderField];
-        status_code: Nat16;
-        streaming_strategy: ?StreamingStrategy;
-	      upgrade: Bool;
-    };
+  private func getWMTSFile(wmts: WMTSTile): async ?FileData {
+      let allFiles = await getAllFiles();
+      for (i in Iter.range(0, allFiles.size() - 1)) {
+          let file : FileData = allFiles[i];
+          Debug.print(Nat.toText(file.z));
+          Debug.print(wmts.tileMatrix);
+          if ((Nat.toText(file.z) == wmts.tileMatrix)
+              and (Nat.toText(file.x) == wmts.tileCol)
+              and (Nat.toText(file.y) == wmts.tileRow)
+          ) {return ?file;}
+      };
+      return null;
+  };
 
-    public type StreamingStrategy = {
-        #Callback: {
-            callback: query (StreamingCallbackToken) ->
-            async (StreamingCallbackHttpResponse);
-            token: StreamingCallbackToken;
-        };
-    };
+  public query func http_request(req: HttpRequest): async (HttpResponse) {
+      let path = removeQuery(req.url);
+          return {
+              body = Text.encodeUtf8("Should forward to http_request_update");
+              headers = [];
+              status_code = 200;
+              streaming_strategy = null;
+              upgrade = true;
+          };
 
-    public type HeaderField = (Text, Text);
+  };
 
-    public type WMTSTile = {
-        version: Text;
-        layer: Text;
-        style: Text;
-        format: Text;
-        srs: Text;
-        tileMatrixSet: Text;
-        tileMatrix: Text;
-        tileRow: Text;
-        tileCol: Text;
-    };
-
-    private func removeQuery(str: Text): Text {
-        return Option.unwrap(Text.split(str, #char '?').next());
-    };
-
-    private func getWMTSFile(wmts: WMTSTile): async ?FileData {
-        let allFiles = await getAllFiles();
-        for (i in Iter.range(0, allFiles.size() - 1)) {
-            let file : FileData = allFiles[i];
-            Debug.print(Nat.toText(file.z));
-            Debug.print(wmts.tileMatrix);
-            if ((Nat.toText(file.z) == wmts.tileMatrix)) {return ?file;}
-        };
-        return null;
-    };
-
-    public query func http_request(req: HttpRequest): async (HttpResponse) {
-        let path = removeQuery(req.url);
-            return {
-                body = Text.encodeUtf8("Should forward to http_request_update");
-                headers = [];
-                status_code = 200;
-                streaming_strategy = null;
-		            upgrade = true;
-            };
-
-    };
-
-public func http_request_update(req : HttpRequest) : async HttpResponse {
-    Debug.print("In Update Request");
+  public func http_request_update(req : HttpRequest) : async HttpResponse {
     // try to parse the req.url as a GET Tile Request
     let wmts_call = label exit : ?(WMTSTile) {
-      Debug.print("1");
         let splitted = Text.split(req.url, #char '/');
-      Debug.print("2");
         let array = Iter.toArray<Text>(splitted);
       Debug.print(Nat.toText(array.size()));
         if (array.size() != 9) { break exit(null) };
-      Debug.print("4");
 
         // get col and format from last
         let lastSplittet = Text.split(array[8], #char '.');
-      Debug.print("5");
         let lastSplittetArray = Iter.toArray<Text>(lastSplittet);
-      Debug.print(lastSplittetArray.size());
         if (lastSplittetArray.size() != 2) { break exit(null) };
-      Debug.print("7");
 
 
         let WMTSTile = {
@@ -402,23 +342,38 @@ public func http_request_update(req : HttpRequest) : async HttpResponse {
             srs = array[5];
             tileMatrix = array[6];
             tileRow = array[7];
-            tileCol = lastSplittetArray[2];
+            tileCol = lastSplittetArray[1];
         };
         ?(WMTSTile)
     };
 
     let wmts_callNN : WMTSTile = switch (wmts_call) {
+            case null return {
+                status_code = 404;
+                headers = [ ("content-type", "text/plain") ];
+                body = "404 Not found.\n Check Tile call again /.\n";
+                upgrade = false;
+                streaming_strategy = null;
+            };
             case (?WMTSTile) WMTSTile;	  
         };
 
     Debug.print("Found wmts_call");
-    Debug.print(wmts_callNN.version);
 
     if (wmts_call!=null) {
         let toServeFile = await getWMTSFile(wmts_callNN);
+        
         let toServeFileNN : FileData = switch (toServeFile) {
+            case null return {
+                status_code = 404;
+                headers = [ ("content-type", "text/plain") ];
+                body = "404 Tile Not found.\n/.\n";
+                upgrade = false;
+                streaming_strategy = null;
+            };
             case (?FileData) FileData;	  
         };
+        
         let b = await getFileChunk(toServeFileNN.fileId, 1, toServeFileNN.cid);
         let myBlob : Blob = switch (b) {
             case null { Blob.fromArray([]) };

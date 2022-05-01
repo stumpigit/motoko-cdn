@@ -5,13 +5,14 @@ import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Nat "mo:base/Nat";
 import Buckets "Buckets";
-import Types "./Types";
+import Types "Types";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
 import Option "mo:base/Option";
 import Bool "mo:base/Bool";
+import WMTSGetCapabilitiesResponse "WMTSGetCapabilities";
 
 // Container actor holds all created canisters in a canisters array 
 // Use of IC management canister with specified Principal "aaaaa-aa" to update the newly 
@@ -288,24 +289,68 @@ Debug.print("Suti2");
   
   
   // Part for serving the image directly by http_request GET 
+  
+  public type HttpRequest = {
+        body: Blob;
+        headers: [HeaderField];
+        method: Text;
+        url: Text;
+    };
+
+    public type StreamingCallbackToken =  {
+        content_encoding: Text;
+        index: Nat;
+        key: Text;
+        sha256: ?Blob;
+    };
+    public type StreamingCallbackHttpResponse = {
+        body: Blob;
+        token: ?StreamingCallbackToken;
+    };
+    public type ChunkId = Nat;
+    public type SetAssetContentArguments = {
+        chunk_ids: [ChunkId];
+        content_encoding: Text;
+        key: Key;
+        sha256: ?Blob;
+    };
+    public type Path = Text;
+    public type Key = Text;
+
+    public type HttpResponse = {
+        body: Blob;
+        headers: [HeaderField];
+        status_code: Nat16;
+        streaming_strategy: ?StreamingStrategy;
+	      upgrade: Bool;
+    };
+
+    public type StreamingStrategy = {
+        #Callback: {
+            callback: query (StreamingCallbackToken) ->
+            async (StreamingCallbackHttpResponse);
+            token: StreamingCallbackToken;
+        };
+    };
+
+    public type HeaderField = (Text, Text);
+
+    public type WMTSTile = {
+        version: Text;
+        layer: Text;
+        style: Text;
+        format: Text;
+        srs: Text;
+        tileMatrixSet: Text;
+        tileMatrix: Text;
+        tileRow: Text;
+        tileCol: Text;
+    };
 
   private func removeQuery(str: Text): Text {
       return Option.unwrap(Text.split(str, #char '?').next());
   };
 
-  private func getWMTSFile(wmts: WMTSTile): async ?FileData {
-      let allFiles = await getAllFiles();
-      for (i in Iter.range(0, allFiles.size() - 1)) {
-          let file : FileData = allFiles[i];
-          Debug.print(Nat.toText(file.z));
-          Debug.print(wmts.tileMatrix);
-          if ((Nat.toText(file.z) == wmts.tileMatrix)
-              and (Nat.toText(file.x) == wmts.tileCol)
-              and (Nat.toText(file.y) == wmts.tileRow)
-          ) {return ?file;}
-      };
-      return null;
-  };
 
   public query func http_request(req: HttpRequest): async (HttpResponse) {
       let path = removeQuery(req.url);
@@ -319,7 +364,39 @@ Debug.print("Suti2");
 
   };
 
+  let wmtsresponse = WMTSGetCapabilitiesResponse;
+
+  public func getWMTSFile(wmts: WMTSTile): async ?FileData
+  {
+    let allFiles = await getAllFiles();
+      for (i in Iter.range(0, allFiles.size() - 1)) {
+          let file : FileData = allFiles[i];
+          Debug.print(Nat.toText(file.z));
+          Debug.print(wmts.tileMatrix);
+          if ((Nat.toText(file.z) == wmts.tileMatrix)
+              and (Nat.toText(file.x) == wmts.tileCol)
+              and (Nat.toText(file.y) == wmts.tileRow)
+          ) {return ?file;}
+      };
+      return null;
+    };
+  
+
   public func http_request_update(req : HttpRequest) : async HttpResponse {
+    
+    if ((req.method, req.url) == ("GET", "/wmts?REQUEST=GetCapabilities")) {
+      return {
+              body = Text.encodeUtf8(wmtsresponse.getCapabilities());
+              //body = Text.encodeUtf8("Hallo");
+              headers = [];
+              status_code = 200;
+              streaming_strategy = null;
+              upgrade = true;
+          };
+
+    };
+    
+    
     // try to parse the req.url as a GET Tile Request
     let wmts_call = label exit : ?(WMTSTile) {
         let splitted = Text.split(req.url, #char '/');
@@ -361,6 +438,7 @@ Debug.print("Suti2");
     Debug.print("Found wmts_call");
 
     if (wmts_call!=null) {
+   
         let toServeFile = await getWMTSFile(wmts_callNN);
         
         let toServeFileNN : FileData = switch (toServeFile) {

@@ -404,6 +404,14 @@ Debug.print("Suti2");
         return queryHashMap;
 
   };
+
+  private func getParameterValue(parameter: Text, queryHashMap : HashMap.HashMap<Text, Text>): Text {
+    let param : Text = switch (queryHashMap.get(parameter)) {
+            case null "";
+            case (?Text) Text
+          };
+    return param;
+  };
   
 
   public func http_request_update(req : HttpRequest) : async HttpResponse {
@@ -414,7 +422,7 @@ Debug.print("Suti2");
       if (Text.startsWith(url, #text "/wmts?") == true) {
         // parse query
         let querys : Text = queryString(url);
-        let queryhm = queryMap(url);
+        let queryHashMap = queryMap(url);
 
         // GetCapabilities
         if (Text.contains(url, #text "request=getcapabilities") == true)
@@ -428,7 +436,65 @@ Debug.print("Suti2");
          // GetTile
         if (Text.contains(url, #text "request=gettile") == true) 
         {
-          
+          var errormsg : Text = "";
+
+          let tilematrixset = getParameterValue("tilematrixset", queryHashMap);
+          if (tilematrixset=="") errormsg := "No tilematrixset defined";
+          let version = getParameterValue("version", queryHashMap);
+          if (version=="") errormsg := "No version defined";
+          let style = getParameterValue("style", queryHashMap);
+          if (style=="") errormsg := "No style defined";
+          let format = getParameterValue("format", queryHashMap);
+          if (format=="") errormsg := "No format defined";
+          let tilematrix = getParameterValue("tilematrix", queryHashMap);
+          if (tilematrix=="") errormsg := "No tilematrix defined";
+          let tilecol = getParameterValue("tilecol", queryHashMap);
+          if (tilecol=="") errormsg := "No tilecol defined";
+          let tilerow = getParameterValue("tilerow", queryHashMap);
+          if (tilerow=="") errormsg := "No tilerow defined";
+          let layer = getParameterValue("layer", queryHashMap);
+          if (layer=="") errormsg := "No layer defined";
+
+
+          let wmts_call : WMTSTile = {
+            version = version;
+            layer = layer;
+            style = style;
+            format = "png";
+            tileMatrixSet = tilematrixset;
+            srs = tilematrixset;
+            tileMatrix = tilematrix;
+            tileRow = tilerow;
+            tileCol = tilecol;
+          };
+
+   
+        let toServeFile = await getWMTSFile(wmts_call);
+        
+        let toServeFileNN : FileData = switch (toServeFile) {
+            case null return {
+                status_code = 404;
+                headers = [ ("content-type", "text/plain") ];
+                body = "404 Tile Not found.\n/.\n";
+                upgrade = false;
+                streaming_strategy = null;
+            };
+            case (?FileData) FileData;	  
+        };
+        
+        let b = await getFileChunk(toServeFileNN.fileId, 1, toServeFileNN.cid);
+        let myBlob : Blob = switch (b) {
+            case null { Blob.fromArray([]) };
+            case (?Blob) Blob;	  
+        };
+	    return {
+            status_code = 200;
+            headers = [ ("content-type", "image/png") ];
+            body = myBlob;
+            upgrade = false;
+            streaming_strategy = null;        
+        };
+
         }
       }
 

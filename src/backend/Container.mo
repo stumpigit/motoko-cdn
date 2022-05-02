@@ -12,6 +12,7 @@ import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
 import Option "mo:base/Option";
 import Bool "mo:base/Bool";
+import Prim "mo:prim";
 import WMTSGetCapabilitiesResponse "WMTSGetCapabilities";
 
 // Container actor holds all created canisters in a canisters array 
@@ -380,19 +381,58 @@ Debug.print("Suti2");
       };
       return null;
     };
+
+  private func queryString(str: Text): Text {
+        let queryPart = Text.split(str, #char '?');
+        let textArray = Iter.toArray<Text>(queryPart);
+        Debug.print("Array size = " # Nat.toText(textArray.size()));
+        if (textArray.size() == 2) return textArray[1];
+        return "";
+
+    };
+
+  private func queryMap(url: Text): HashMap.HashMap<Text, Text> {
+      let queryHashMap = HashMap.HashMap<Text, Text>(100, Text.equal, Text.hash);
+      let queryText : Text = queryString(url);
+        for (parameter in Text.split(queryText, #char '&'))
+        {
+            Debug.print("Found parameter: " # parameter);
+            let paramPart = Text.split(parameter, #char '=');
+            let peramPartArray = Iter.toArray<Text>(paramPart);
+            queryHashMap.put(peramPartArray[0], peramPartArray[1]);
+        };
+        return queryHashMap;
+
+  };
   
 
   public func http_request_update(req : HttpRequest) : async HttpResponse {
-    
-    if ((req.method, req.url) == ("GET", "/wmts?REQUEST=GetCapabilities")) {
-      return {
+    let url : Text = Text.map(req.url , Prim.charToLower);
+
+
+    if (req.method == "GET")  {
+      if (Text.startsWith(url, #text "/wmts?") == true) {
+        // parse query
+        let querys : Text = queryString(url);
+        let queryhm = queryMap(url);
+
+        // GetCapabilities
+        if (Text.contains(url, #text "request=getcapabilities") == true)
+          return {
               body = Text.encodeUtf8(wmtsresponse.getCapabilities());
-              //body = Text.encodeUtf8("Hallo");
-              headers = [];
+              headers = [("Access-Control-Allow-Origin", "*")];
               status_code = 200;
               streaming_strategy = null;
               upgrade = true;
           };
+         // GetTile
+        if (Text.contains(url, #text "request=gettile") == true) 
+        {
+          
+        }
+      }
+
+     
 
     };
     

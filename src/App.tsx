@@ -65,6 +65,21 @@ const CdnElement: React.FC<any> = ({ updateDeps, setErrros }) => {
       height: number;
     }
 
+    const [tilecol,setTileCol] = useState("");
+    const onChangeTileCol = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setTileCol(event.target.value)
+    }
+
+    const [tilerow,setTileRow] = useState("");
+    const onChangeTileRow = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setTileRow(event.target.value)
+    }
+
+    const [tilematrix,setTileMatrix] = useState("");
+    const onChangeTileMatrix = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setTileMatrix(event.target.value)
+    }
+
     const b64toBlob = (b64Data: string, contentType='', sliceSize=512) => {
       
       const byteCharacters = atob(b64Data);
@@ -143,6 +158,7 @@ const CdnElement: React.FC<any> = ({ updateDeps, setErrros }) => {
       return ba.putFileChunks(fileId, BigInt(chunk), BigInt(fileSize), encodeArrayBuffer(bsf));
     }
 
+
     // const infiniteTest = async(event: React.FormEvent<HTMLButtonElement>) => {
       // event.preventDefault();
     //   // console.log(chunks);
@@ -175,6 +191,7 @@ const CdnElement: React.FC<any> = ({ updateDeps, setErrros }) => {
 
     const handleUpload = async (event: React.FormEvent<HTMLButtonElement>) => {
       event.preventDefault();
+
       const fileExtension = getFileExtension(file.type);
       console.log(fileExtension);
       const errors = [];
@@ -200,9 +217,9 @@ const CdnElement: React.FC<any> = ({ updateDeps, setErrros }) => {
         chunkCount: BigInt(Number(Math.ceil(file.size / MAX_CHUNK_SIZE))),
         // @ts-ignore
         extension: fileExtension,
-        x: BigInt(0),
-        y: BigInt(0),
-        z: BigInt(16),
+        x: BigInt(tilecol),
+        y: BigInt(tilerow),
+        z: BigInt(tilematrix),
       };
       const ba = await BackendActor.getBackendActor();
       setValue(10);
@@ -250,10 +267,18 @@ const CdnElement: React.FC<any> = ({ updateDeps, setErrros }) => {
                 <h3>{fileData}</h3>
                 <img src='http://100dayscss.com/codepen/upload.svg' className='upload-icon'/>
               </div>
+              
             </div>
             {!!ready && 
                   <Button className="file-upload-btn" type="button"  onClick={handleUpload} >Upload</Button>
             }
+
+              <div>
+                TileCol (x): <input type="text" name="tilecol" value={tilecol} onChange={onChangeTileCol}/><br />
+                TileRow (y): <input type="text" name="tilerow" value={tilerow} onChange={onChangeTileRow}/><br />
+                TileCol (z): <input type="text" name="tilematrix" value={tilematrix} onChange={onChangeTileMatrix}/><br />
+              </div>
+
         </Col>
     </React.Fragment>;
 

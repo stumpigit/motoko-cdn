@@ -372,8 +372,8 @@ Debug.print("Suti2");
     let allFiles = await getAllFiles();
       for (i in Iter.range(0, allFiles.size() - 1)) {
           let file : FileData = allFiles[i];
-          Debug.print(Nat.toText(file.z));
-          Debug.print(wmts.tileMatrix);
+          Debug.print("File found for " # Nat.toText(file.z) # "/" # Nat.toText(file.y) # "/" # Nat.toText(file.x));
+          Debug.print("Searching for " # wmts.tileMatrix # "/" # wmts.tileRow # "/" # wmts.tileCol);
           if ((Nat.toText(file.z) == wmts.tileMatrix)
               and (Nat.toText(file.x) == wmts.tileCol)
               and (Nat.toText(file.y) == wmts.tileRow)
@@ -525,7 +525,7 @@ Debug.print("Suti2");
             srs = array[5];
             tileMatrix = array[6];
             tileRow = array[7];
-            tileCol = lastSplittetArray[1];
+            tileCol = lastSplittetArray[0];
         };
         ?(WMTSTile)
     };

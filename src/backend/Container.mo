@@ -115,15 +115,12 @@ shared ({caller = owner}) actor class Container() = this {
     Debug.print("new canister principal is " # debug_show(Principal.toText(Principal.fromActor(b))) );
     Debug.print("initial size is " # debug_show(s));
     let _ = canisterMap.put(Principal.fromActor(b), threshold);
-Debug.print("suti1");    
 var v : CanisterState<Bucket, Nat> = {
          bucket = b;
          var size = s;
     };
-Debug.print("Suti2");
 
     canisters[1] := ?v;
-  Debug.print("Suti3");
     b;
   };
 
@@ -460,7 +457,7 @@ Debug.print("Suti2");
             version = version;
             layer = layer;
             style = style;
-            format = "png";
+            format = "jpeg";
             tileMatrixSet = tilematrixset;
             srs = tilematrixset;
             tileMatrix = tilematrix;
@@ -489,7 +486,7 @@ Debug.print("Suti2");
         };
 	    return {
             status_code = 200;
-            headers = [ ("content-type", "image/png") ];
+            headers = [ ("content-type", "image/jpeg") ];
             body = myBlob;
             upgrade = false;
             streaming_strategy = null;        
@@ -565,7 +562,7 @@ Debug.print("Suti2");
         };
 	    return {
             status_code = 200;
-            headers = [ ("content-type", "image/png") ];
+            headers = [ ("content-type", "image/jpeg") ];
             body = myBlob;
             upgrade = false;
             streaming_strategy = null;        
@@ -583,7 +580,7 @@ Debug.print("Suti2");
       };
 	    return {
         status_code = 200;
-        headers = [ ("content-type", "image/png") ];
+        headers = [ ("content-type", "image/jpeg") ];
         body = myBlob;
         upgrade = false;
         streaming_strategy = null;        

@@ -3,6 +3,7 @@ import { Col, Input, Progress, Row, Table, Button, Container, Pagination, Pagina
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Principal } from "@dfinity/principal";
 import './App.css';
+import {Uploader} from "./uploader"
 
 import { BackendActor }  from './agent';
 import { FileExtension, FileInfo } from './declarations/backend/backend.did';
@@ -38,6 +39,21 @@ const getFileExtension = (type: string) : FileExtension | null => {
     return null;
   }
 };
+
+const fetchImage = async()  => {
+  /*let tilecol : number;
+  let tilerow : number;
+  for (tilerow = 130; tilerow<=137; tilerow++) {
+    for (tilecol = 88; tilecol <=92; tilecol++) {
+      console.log("8/"+ tilerow + "/" + tilecol);
+      await Uploader.fetchImage(8, tilecol, tilerow);
+    }
+  }*/
+
+  await Uploader.getTiles(14, 802388, 5884115, 853171, 5939348);
+
+  
+}
 
 const CdnElement: React.FC<any> = ({ updateDeps, setErrros }) => {
 
@@ -490,12 +506,14 @@ function App() {
         <br/><br/>
         <Row>
           <Col className="col-12">
+          
           <div className="alert alert-warning" role="alert">
                 Max file size: 10mb -----
                 Accepted extensions: jpeg, gif, jpg, png, svg, avi, aac, mp4, wav, mp3 
             </div>
           </Col>
           <Col className="col-6">
+            <button onClick={async () => {await fetchImage()}}>Uploadme</button>
           <CdnElement updateDeps={updateDeps} setErrros={setErrors} />
           </Col>
           <Col className="col-6">

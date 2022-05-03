@@ -62,6 +62,7 @@ actor class Bucket () = this {
               case (?_) { /* error -- ID already taken. */ null }; 
               case null { /* ok, not taken yet. */
                   Debug.print("id is..." # debug_show(fileId));   
+                  Debug.print("x is..." # debug_show(fi.x));
                   state.files.put(fileId,
                                       {
                                           fileId = fileId;
@@ -105,6 +106,8 @@ actor class Bucket () = this {
   func getFileInfoData(fileId : FileId) : ?FileData {
       do ? {
           let v = state.files.get(fileId)!;
+          Debug.print("x is ..." # debug_show(v.x));
+ 
             {
             fileId = v.fileId;
             cid = v.cid;

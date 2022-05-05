@@ -90,7 +90,7 @@ shared ({caller = owner}) actor class Container() = this {
   private let canisterMap = HashMap.HashMap<Principal, Nat>(100, Principal.equal, Principal.hash);
 
 
-  private let canisters : [var ?CanisterState<Bucket, Nat>] = Array.init(10, null);
+  private stable let canisters : [var ?CanisterState<Bucket, Nat>] = Array.init(10, null);
   // this is the number I've found to work well in my tests
   // until canister updates slow down 
   //From Claudio:  Motoko has a new compacting gc that you can select to access more than 2 GB, but it might not let you
@@ -122,6 +122,14 @@ var v : CanisterState<Bucket, Nat> = {
 
     canisters[1] := ?v;
     b;
+  };
+
+  public func deleteMyCanister(): async () {
+    let xxx = Principal.fromText("qwsuk-oiaaa-aaaak-aaqoq-cai");
+    Debug.print(Principal.toText(xxx));
+    let cid = { canister_id = Principal.fromBlob(Principal.toBlob(xxx))};
+    await (IC.stop_canister(cid));
+    await (IC.delete_canister(cid));
   };
 
   // check if there's an empty bucket we can use

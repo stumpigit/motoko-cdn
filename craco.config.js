@@ -23,9 +23,16 @@ function initCanisterIds() {
     (process.env.REACT_APP_DFX_NETWORK === "production" && !localEnv ? "ic" : "local");
 
   canisters = network === "local" || localEnv ? localCanisters : prodCanisters;
+
+canisters = prodCanisters;
+//network ="ic";
+console.log(network);
+console.log(canisters);
   for (const canister in canisters) {
     process.env[canister.toUpperCase() + "_CANISTER_ID"] =
       canisters[canister][network];
+  console.log(canister.toUpperCase() + "_CANISTER_ID");
+ console.log( canisters[canister][network]);
   }
 };
 
@@ -42,7 +49,7 @@ const asset_entry = path.join(
 
 
 module.exports = {
-  mode : "development",
+  mode : "developmenet",
   eslint: {
     enable: false,
   },
@@ -56,7 +63,7 @@ module.exports = {
       new webpack.EnvironmentPlugin({
         DFX_NETWORK: process.env.REACT_APP_DFX_NETWORK,
         BACKEND_CANISTER_ID: canisters["backend"],
-        CDN_CANISTER_ID: canisters["cdn"],
+        CDN_CANISTER_ID: canisters["frontend"],
         NODE_ENV: isDevelopment,
       }),
     ],

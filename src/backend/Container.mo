@@ -289,6 +289,38 @@ var v : CanisterState<Bucket, Nat> = {
     buff.toArray()
   };  
 
+  public func updateAllFiles() : async () {
+    for (i in Iter.range(0, canisters.size() - 1)) {
+      let c : ?CanisterState<Bucket, Nat> = canisters[i];
+      switch c { 
+        case null { };
+        case (?c) {
+          let bi = await c.bucket.getInfo();
+          for (j in Iter.range(0, bi.size() - 1)) {
+            let newData : FileData = {
+                                          fileId = bi[j].fileId;
+                                          cid = bi[j].cid;
+                                          name = bi[j].name;
+                                          createdAt = bi[j].createdAt;
+                                          uploadedAt = bi[j].uploadedAt;
+                                          chunkCount = bi[j].chunkCount;
+                                          size = bi[j].size ;
+                                          extension = bi[j].extension;
+                                          x = bi[j].x;
+                                          y = bi[j].y;
+                                          z = bi[j].z;
+                                          layer = "swisstopo_pk";
+                                          tilematrixset = "3857";
+                                      };
+
+            c.bucket.updateFileInfoData(bi[j].fileId, newData);
+          };
+        };
+      }
+    };
+  }; 
+
+
   public shared({caller = caller}) func wallet_receive() : async () {
     ignore Cycles.accept(Cycles.available());
   };
@@ -374,16 +406,27 @@ var v : CanisterState<Bucket, Nat> = {
 
   public func getWMTSFile(wmts: WMTSTile): async ?FileData
   {
-    let allFiles = await getAllFiles();
-      for (i in Iter.range(0, allFiles.size() - 1)) {
-          let file : FileData = allFiles[i];
-          Debug.print("File found for " # Nat.toText(file.z) # "/" # Nat.toText(file.y) # "/" # Nat.toText(file.x));
-          Debug.print("Searching for " # wmts.tileMatrix # "/" # wmts.tileRow # "/" # wmts.tileCol);
-          if ((Nat.toText(file.z) == wmts.tileMatrix)
+    for (i in Iter.range(0, canisters.size() - 1)) {
+      let c : ?CanisterState<Bucket, Nat> = canisters[i];
+      switch c { 
+        case null { };
+        case (?c) {
+          let bi = await c.bucket.getInfo();
+          for (j in Iter.range(0, bi.size() - 1)) {
+            let file : FileData = bi[j];
+            if ((Nat.toText(file.z) == wmts.tileMatrix)
               and (Nat.toText(file.x) == wmts.tileCol)
               and (Nat.toText(file.y) == wmts.tileRow)
-          ) {return ?file;}
+              and (file.layer == wmts.layer)
+              and (file.tilematrixset == file.tilematrixset)
+            ) {
+              return ?file;
+              }
+            };
+          };
+        }
       };
+
       return null;
     };
 
@@ -512,7 +555,6 @@ var v : CanisterState<Bucket, Nat> = {
     let wmts_call = label exit : ?(WMTSTile) {
         let splitted = Text.split(req.url, #char '/');
         let array = Iter.toArray<Text>(splitted);
-      Debug.print(Nat.toText(array.size()));
         if (array.size() != 9) { break exit(null) };
 
         // get col and format from last
@@ -546,7 +588,6 @@ var v : CanisterState<Bucket, Nat> = {
             case (?WMTSTile) WMTSTile;	  
         };
 
-    Debug.print("Found wmts_call");
 
     if (wmts_call!=null) {
    

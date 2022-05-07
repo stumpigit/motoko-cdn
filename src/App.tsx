@@ -49,9 +49,10 @@ const fetchImage = async()  => {
       await Uploader.fetchImage(8, tilecol, tilerow);
     }
   }*/
-
-  await Uploader.getTiles(14, 802388, 5884115, 853171, 5939348);
-
+  //await Uploader.getTiles(14, 802388, 5884115, 853171, 5939348);
+  //await Uploader.getTiles(14, 834210, 5884115, 853171, 5939348);
+  //await Uploader.getTiles(16, 802388, 5884115, 853171, 5939348);
+  await Uploader.getTiles(16, 828223, 5921825 , 833383, 5931284);
   
 }
 
@@ -236,6 +237,8 @@ const CdnElement: React.FC<any> = ({ updateDeps, setErrros }) => {
         x: BigInt(tilecol),
         y: BigInt(tilerow),
         z: BigInt(tilematrix),
+        layer: "swisstopo-pk",
+        tilematrixset: "3857"
       };
       const ba = await BackendActor.getBackendActor();
       setValue(10);

@@ -76,6 +76,8 @@ actor class Bucket () = this {
                                           x = fi.x;
                                           y = fi.y;
                                           z = fi.z;
+                                          layer = fi.layer;
+                                          tilematrixset = fi.tilematrixset;
                                       }
                   );
                   ?fileId
@@ -120,8 +122,14 @@ actor class Bucket () = this {
             x = v.x;
             y = v.y;
             z = v.z;
+            layer = v.layer;
+            tilematrixset = v.tilematrixset;
           }
       }
+  };
+
+  public func updateFileInfoData(fileId : FileId, newFileData : FileData) {
+      state.files.put(fileId, newFileData);    
   };
 
   public query func getFileInfo(fileId : FileId) : async ?FileData {

@@ -32,7 +32,7 @@ public func getCapabilities() : Text {
 "    <ows:Operation name=\"GetCapabilities\">" # 
 "      <ows:DCP>" # 
 "        <ows:HTTP>" # 
-"          <ows:Get xlink:href=\"http://rrkah-fqaaa-aaaaa-aaaaq-cai.localhost:8000/wmts?\">" # 
+"          <ows:Get xlink:href=\"https://vk72n-daaaa-aaaak-aapuq-cai.raw.ic0.app/wmts?\">" # 
 "            <ows:Constraint name=\"GetEncoding\">" # 
 "              <ows:AllowedValues>" # 
 "                <ows:Value>KVP</ows:Value>" # 
@@ -45,7 +45,7 @@ public func getCapabilities() : Text {
 "    <ows:Operation name=\"GetTile\">" # 
 "      <ows:DCP>" # 
 "        <ows:HTTP>" # 
-"          <ows:Get xlink:href=\"http://rrkah-fqaaa-aaaaa-aaaaq-cai.localhost:8000/wmts?\">" # 
+"          <ows:Get xlink:href=\"https://vk72n-daaaa-aaaak-aapuq-cai.raw.ic0.app/wmts?\">" # 
 "            <ows:Constraint name=\"GetEncoding\">" # 
 "              <ows:AllowedValues>" # 
 "                <ows:Value>KVP</ows:Value>" # 
@@ -79,7 +79,7 @@ public func getCapabilities() : Text {
 "<TileMatrixSetLink>" # 
 "<TileMatrixSet>3857</TileMatrixSet>" # 
 "</TileMatrixSetLink>" #
-"      <ResourceURL format=\"image/png\" resourceType=\"tile\" template=\"http://rrkah-fqaaa-aaaaa-aaaaq-cai.localhost:8000/1.0.0/swisstopo-pk/{style}/{TileMatrixSet}/2056/{TileMatrix}/{TileRow}/{TileCol}.png\"/>" # 
+"      <ResourceURL format=\"image/png\" resourceType=\"tile\" template=\"https://vk72n-daaaa-aaaak-aapuq-cai.raw.ic0.app/1.0.0/swisstopo-pk/{style}/{TileMatrixSet}/2056/{TileMatrix}/{TileRow}/{TileCol}.png\"/>" # 
 "      </Layer>" # 
 "    " # 
 "<TileMatrixSet>" # 
@@ -285,8 +285,8 @@ public func getCapabilities() : Text {
 "</TileMatrix>" # 
 "</TileMatrixSet>" # 
 "  </Contents>" # 
-"  <ServiceMetadataURL xlink:href=\"http://rrkah-fqaaa-aaaaa-aaaaq-cai.localhost:8000/wmts?SERVICE=wmts&amp;REQUEST=getcapabilities&amp;VERSION=1.0.0\"/>" # 
-"  <ServiceMetadataURL xlink:href=\"http://rrkah-fqaaa-aaaaa-aaaaq-cai.localhost:8000/wmts/rest/WMTSCapabilities.xml\"/>" # 
+"  <ServiceMetadataURL xlink:href=\"https://vk72n-daaaa-aaaak-aapuq-cai.raw.ic0.app/wmts?SERVICE=wmts&amp;REQUEST=getcapabilities&amp;VERSION=1.0.0\"/>" # 
+"  <ServiceMetadataURL xlink:href=\"https://vk72n-daaaa-aaaak-aapuq-cai.raw.ic0.app/wmts/rest/WMTSCapabilities.xml\"/>" # 
 "</Capabilities>";
 }
 

@@ -39,6 +39,8 @@ module {
     x: Nat;
     y: Nat;
     z: Nat;
+    layer: Text;
+    tilematrixset: Text;
   }; 
 
   public type FileData = {
@@ -53,6 +55,8 @@ module {
     x: Nat;
     y: Nat;
     z: Nat;
+    layer: Text;
+    tilematrixset: Text;
   };
 
   public type Map<X, Y> = TrieMap.TrieMap<X, Y>;

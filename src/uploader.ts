@@ -1,6 +1,6 @@
 import internal from 'stream';
 import { BackendActor }  from './agent';
-import { FileExtension, FileInfo } from './declarations/backend/backend.did';
+import { FileExtension, FileInfo, WMTSTile, FileData } from './declarations/backend/backend.did';
 export namespace Uploader {
 const MAX_CHUNK_SIZE = 1024 * 500; // 500kb
 const encodeArrayBuffer = (file: ArrayBuffer): number[] =>
@@ -73,16 +73,39 @@ export async function getTiles(tilematrix: number, topleftx: number, toplefty: n
 
   let tilecol : number;
   let tilerow : number;
+  let current : number = 0;
+  let total : number = (bottomrightTileRow - topleftTileRow) * (topleftTileCol - bottomrightTileCol);
   for (tilerow = topleftTileRow; tilerow<=bottomrightTileRow; tilerow++) {
     for (tilecol = bottomrightTileCol; tilecol <=topleftTileCol; tilecol++) {
       console.log(tilematrix + "/"+ tilerow + "/" + tilecol);
+      console.log(current + " of " + total + " Tiles uploaded to ic");
       await Uploader.fetchImage(tilematrix, tilecol, tilerow);
+      current++;
     }
   }
 }
 
 export async function fetchImage(tilematrix: number, tilecol: number, tilerow: number) {
   console.log("Fetchimage");
+
+  try {
+    const ba = await BackendActor.getBackendActor();
+  let wmts_call : WMTSTile = {
+    version : "1.0.0",
+    layer : "swisstopo-pk",
+    style : "",
+    format : "jpeg",
+    tileMatrixSet : "3857",
+    srs : "3857",
+    tileMatrix : tilematrix.toString(),
+    tileRow : tilecol.toString(),
+    tileCol : tilerow.toString()
+  };
+
+//let fd = (await ba.getWMTSFile(wmts_call));
+//console.log(fd);
+//if (fd.length == 0) {
+
 let file = await fetch("https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/"+ tilematrix +"/"+ tilerow+"/"+ tilecol+".jpeg").then(response => response.blob())
 .then(async function(file) {
   const fileInfo : FileInfo = {
@@ -95,15 +118,14 @@ let file = await fetch("https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-
     x: BigInt(tilerow),
     y: BigInt(tilecol),
     z: BigInt(tilematrix),
+    layer: "swisstopo-pk",
+    tilematrixset: "3857"
   };
-  const ba = await BackendActor.getBackendActor();
+
+
   // const authenticated = await authClient.isAuthenticated();
   // console.log(authenticated);
   const fileId = (await ba.putFileInfo(fileInfo))[0] as string;
-  console.log("FileId:")
-  console.log(fileId);
-  console.log("X:");
-  console.log(fileInfo);
   const blob = file;
   const putChunkPromises: Promise<undefined>[] = [];
   let chunk = 1;
@@ -113,9 +135,18 @@ let file = await fetch("https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-
   
   await Promise.all(putChunkPromises);
   await ba.updateStatus();
-
 });
-  
+    }
+    catch (e)
+    {
+      console.log("Error in Image: "+tilematrix+"/"+tilerow+"/"+tilecol+": " + e);
+    }
+
+
+//}
+//else {
+//  console.log("File already in store");
+//}
 
 
 };
